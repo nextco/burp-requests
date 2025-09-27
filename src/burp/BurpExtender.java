@@ -1,3 +1,4 @@
+// ./gradlew build
 package burp;
 
 import java.util.*;
@@ -61,6 +62,8 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
 
 	private void copyMessages(IHttpRequestResponse[] messages, boolean withSessionObject) {
 		StringBuilder py = new StringBuilder("import requests");
+		py.append("\nrequests.packages.urllib3.disable_warnings()"); // Fix SSL warnings
+
 		String requestsMethodPrefix =
 			"\n" + (withSessionObject ? SESSION_VAR : "requests") + ".";
 		
@@ -103,6 +106,8 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
 				String kind = bodyType.toString().toLowerCase();
 				py.append(", ").append(kind).append('=').append(prefix).append(kind);
 			}
+
+			py.append(", verify=False"); 	// Normal pentesting debug setup
 			py.append(')');
 		}
 

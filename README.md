@@ -3,6 +3,15 @@ Copy as requests plugin for Burp Suite
 
 Copies selected request(s) as Python [requests][1] invocation.
 
+Output
+-------
+![](img/output.png)
+
+Path
+-------
+![](img/menu.png)
+
+
 Building
 --------
 
