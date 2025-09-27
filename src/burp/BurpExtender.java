@@ -16,7 +16,7 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
 	private final static String NAME = "Copy as requests";
 	private final static String SESSION_MENU_ITEM = NAME + " with session object";
 	private final static String[] PYTHON_ESCAPE = new String[256];
-	private final static String SESSION_VAR = "session";
+	private final static String SESSION_VAR = "s";
 
 	static {
 		for (int i = 0x00; i <= 0xFF; i++) PYTHON_ESCAPE[i] = String.format("\\x%02x", i);
@@ -63,16 +63,28 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, Clipboa
 		StringBuilder py = new StringBuilder("import requests");
 		String requestsMethodPrefix =
 			"\n" + (withSessionObject ? SESSION_VAR : "requests") + ".";
-		int i = 0;
-
+		
 		if (withSessionObject) {
 			py.append("\n\n" + SESSION_VAR + " = requests.session()");
 		}
 
+		// Count number of input request
+		int numberOfrequests = 0;
+		for (IHttpRequestResponse request : messages) {
+			numberOfrequests++;
+		}
+
+		int i = 1;
 		for (IHttpRequestResponse message : messages) {
 			IRequestInfo ri = helpers.analyzeRequest(message);
 			byte[] req = message.getRequest();
-			String prefix = "burp" + i++ + "_";
+			
+			// Change prefix for a single request
+			String prefix = "r" + i++ + "_";
+			if (numberOfrequests == 1){
+				prefix = "";
+			}
+
 			py.append("\n\n").append(prefix).append("url = \"");
 			py.append(escapeQuotes(ri.getUrl().toString()));
 			py.append('"');
